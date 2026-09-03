@@ -10,12 +10,20 @@ const python = document.querySelector("#python-count");
 const dataAnalytics = document.querySelector("#data-analytics-count");
 const mernStack = document.querySelector("#mern-stack-count");
 const cloudComputing = document.querySelector("#cloud-computing-count");
+const submitButton = document.querySelector("button[type='submit']");
+const studentNameInput = document.querySelector("#studentName");
+const emailInput = document.querySelector("#email");
+const phoneInput = document.querySelector("#phoneNumber");
+const dateOfBirthInput = document.querySelector("#dateOfBirth");
+const courseSelect = document.querySelector("#course");
+
 
 counter.textContent = "0 / 200";
 aboutStudent.parentElement.append(counter);
 
 const students = [];
 let currID = 1;
+let editingStudentId = null;
 
 const statistics = {
   totalStudents: 0,
@@ -32,11 +40,11 @@ form.addEventListener("submit", validateForm);
 function validateForm(event) {
   event.preventDefault();
 
-  const name = document.querySelector("#studentName").value;
-  const email = document.querySelector("#email").value;
-  const phone = document.querySelector("#phoneNumber").value;
-  const dateOfBirth = document.querySelector("#dateOfBirth").value;
-  const course = document.querySelector("#course").value;
+  const name = studentNameInput.value;
+  const email = emailInput.value;
+  const phone = phoneInput.value;
+  const dateOfBirth = dateOfBirthInput.value;
+  const course = courseSelect.value;
   const about = aboutStudent.value;
   const photo = document.querySelector("#profilePhoto").files[0];
   const gender = document.querySelector("input[name='gender']:checked");
@@ -90,7 +98,7 @@ function validateForm(event) {
   if (about.length < 20 || about.length > 200 || !about.trim()) {
     errors.push("About Student must contain 20 to 200 characters.");
   }
-  if (!photo || photo.type.indexOf("image/") !== 0) {
+  if ((!photo && editingStudentId === null) || (photo && photo.type.indexOf("image/") !== 0)) {
     errors.push("Select an image for the profile photo.");
   }
 
@@ -106,10 +114,8 @@ function validateForm(event) {
 
   const skillsArray = Array.from(selectedSkills).map((ele) => ele.value);
 
-  alert("Student information is valid.");
-
   let student = {
-    id: currID++,
+    id: currID,
     name: name,
     email: email,
     phone: phone,
@@ -120,6 +126,36 @@ function validateForm(event) {
     about: about,
     photo: photo,
   };
+
+  if (editingStudentId !== null) {
+    for (let i = 0; i < students.length; i++) {
+
+      if (students[i].id === editingStudentId) {
+        student.id = editingStudentId;
+
+        if (!photo) {
+          student.photo = students[i].photo;
+        }
+
+        if (students[i].course !== course) {
+          changeCourseCount(students[i].course, -1);
+          changeCourseCount(course, 1);
+        }
+
+        students[i] = student;
+        const oldCard = document.querySelector("[data-id='" + editingStudentId + "']");
+        oldCard.remove();
+        createStudentCard(student);
+        editingStudentId = null;
+        submitButton.textContent = "Register Student";
+        updateStatistics();
+        form.reset();
+        return;
+      }
+    }
+  }
+
+  student.id = currID++;
   students.push(student);
   statistics.totalStudents++;
 
@@ -155,6 +191,8 @@ aboutStudent.addEventListener("input", function () {
 
 form.addEventListener("reset", function () {
   counter.textContent = "0 / 200";
+  editingStudentId = null;
+  submitButton.textContent = "Register Student";
 });
 
 function createStudentCard(student) {
@@ -192,9 +230,11 @@ function createStudentCard(student) {
   about.textContent = "About: \n " + student.about;
 
   const editButton = document.createElement("button");
+  editButton.className = "edit-button";
   editButton.textContent = "Edit this Student card!";
 
   const deleteButton = document.createElement("button");
+  deleteButton.className = "delete-button";
   deleteButton.textContent = "Delete this Student card!";
 
   card.append(
@@ -214,6 +254,27 @@ function createStudentCard(student) {
   studentCards.append(card);
 }
 
+function changeCourseCount(course, amount) {
+  if (course === "Web Development") {
+    statistics.webDevelopment += amount;
+  }
+  if (course === "UI/UX") {
+    statistics.uiUx += amount;
+  }
+  if (course === "Python") {
+    statistics.python += amount;
+  }
+  if (course === "Data Analytics") {
+    statistics.dataAnalytics += amount;
+  }
+  if (course === "MERN Stack") {
+    statistics.mernStack += amount;
+  }
+  if (course === "Cloud Computing") {
+    statistics.cloudComputing += amount;
+  }
+}
+
 function updateStatistics() {
   totalStudents.textContent = statistics.totalStudents;
   webDevelopment.textContent = statistics.webDevelopment;
@@ -222,4 +283,102 @@ function updateStatistics() {
   dataAnalytics.textContent = statistics.dataAnalytics;
   mernStack.textContent = statistics.mernStack;
   cloudComputing.textContent = statistics.cloudComputing;
+}
+
+
+
+studentCards.addEventListener("click", function (event) {
+
+    if(event.target.className === "edit-button") {
+        editStudentCard(event);
+    }
+
+    if(event.target.className === "delete-button") {
+        deleteStudentCard(event);
+    }
+
+});
+
+
+deleteStudentCard = (event) => {
+    
+  const card = event.target.closest(".student-card");
+  const studentID = Number(card.getAttribute("data-id"));
+
+  if (!confirm("Are you sure you want to delete this student?")) {
+    return;
+  }
+
+  for (let i = 0; i < students.length; i++) {
+    if (students[i].id === studentID) 
+    {
+        const delCourse = students[i].course;
+        students.splice(i, 1);//remove this one!
+        statistics.totalStudents--;
+
+        if (delCourse === "Web Development") {
+            statistics.webDevelopment--;
+        }
+        if (delCourse === "UI/UX") {
+            statistics.uiUx--;
+        }
+        if (delCourse === "Python") {
+            statistics.python--;
+        }
+        if (delCourse === "Data Analytics") {
+            statistics.dataAnalytics--;
+        }
+        if (delCourse === "MERN Stack") {
+            statistics.mernStack--;
+        }
+        if (delCourse === "Cloud Computing") {
+            statistics.cloudComputing--;
+        }
+
+        card.remove();
+        updateStatistics();
+        break;
+    }
+  }
+}
+
+editStudentCard = (event) => {
+    
+  const card = event.target.closest(".student-card");
+  const studentID = Number(card.getAttribute("data-id"));
+
+
+  for (let i = 0; i < students.length; i++) {
+    if (students[i].id === studentID) 
+    {
+        const student = students[i];
+        
+        studentNameInput.value = student.name;
+        emailInput.value= student.email;
+        phoneInput.value= student.phone;
+        aboutStudent.value= student.about;
+        dateOfBirthInput.value= student.dateOfBirth;
+        courseSelect.value= student.course;
+
+        const genderInputs = document.querySelectorAll("input[name='gender']");
+        genderInputs.forEach((input) => {
+            if (input.value === student.gender) {
+                input.checked = true;
+                
+            }
+        });
+
+        const skillInputs = document.querySelectorAll("input[name='skills']");
+        skillInputs.forEach((sk) => {
+          sk.checked = student.skills.includes(sk.value);
+        });
+
+        document.querySelector("#profilePhoto").value = "";
+
+        editingStudentId = studentID;
+        submitButton.textContent = "Update Student";
+
+        break;
+    }
+  }
 }
