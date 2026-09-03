@@ -6,13 +6,14 @@
 
 body {
   font-family: Arial, sans-serif;
-  
+  background-color: #F3E9DC;
+  color: #5E3023;
 }
 
 .header {
   padding: 24px;
-  background-color:red;
-  color: white;
+  background-color: #C08552;
+  color: #F3E9DC;
   text-align: center;
 }
 
@@ -21,11 +22,12 @@ body {
   margin-top: 20px;
   margin-left: 5%;
   padding: 20px;
-  background-color: pink;
+  background-color: #F3E9DC;
   border-radius: 8px;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 20px;
+  border: 1px solid #895737;
 }
 
 .student-form div {
@@ -67,7 +69,7 @@ input, select, textarea {
 }
 
 .error-message {
-  color: red;
+  color: #5E3023;
 }
 
 .form-actions {
@@ -80,8 +82,8 @@ input, select, textarea {
 
 button {
     width:80%;
-    background-color: green;
-  color: white;
+    background-color: #5E3023;
+  color: #F3E9DC;
 
   padding: 10px 16px;
   border: 0;
@@ -93,8 +95,8 @@ button {
   width: 90%;
   margin: 20px 5%;
   padding: 20px;
-  background-color: white;
-  border: 1px solid grey;
+  background-color: #F3E9DC;
+  border: 1px solid #895737;
   border-radius: 8px;
 }
 
@@ -134,8 +136,8 @@ button {
 /* particular-div */
 .student-card {
   padding: 16px;
-  background-color: white;
-  border: 1px solid grey;
+  background-color: #F3E9DC;
+  border: 1px solid #895737;
   border-radius: 8px;
   
 }
